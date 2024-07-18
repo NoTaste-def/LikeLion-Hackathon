@@ -24,7 +24,7 @@ from todo import views
 router = DefaultRouter()
 router.register(r'todo-items', views.TodoItemViewSet)
 router.register(r'todo-item-dates', views.TodoItemDateViewSet)
-
+router.register(r'user-todo', views.UserProvidedTodoViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

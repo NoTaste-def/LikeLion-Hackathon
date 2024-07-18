@@ -11,7 +11,7 @@ class TodoItem(models.Model):
         ('vegetable_juice', '야채주스 마시기'),
         ('fermented_food', '발효식품 먹기'),
         ('protein', '단백질 먹기'),
-        ('cardio', '유산소 운동 하기'),
+        ('cardio', '유산소 운동하기'),
         ('strength_training', '근력 운동하기'),
         ('stretching', '스트레칭하기'),
         ('meditation', '명상하기'),
@@ -33,3 +33,14 @@ class TodoItemDate(models.Model):
 
     class Meta:
         unique_together = ('item', 'date')
+
+class UserProvidedTodo(models.Model):
+    # 유저 완성되면 유저 외래키 기반으로 관리.
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_todo = models.TextField()  # models.ListField 대신 models.TextField 사용
+
+    def __str__(self):
+        return self.user_todo
+
+    def get_user_todo_list(self):
+        return self.user_todo.split(',')  # 쉼표를 기준으로 문자열을 리스트로 분할하여 반환
