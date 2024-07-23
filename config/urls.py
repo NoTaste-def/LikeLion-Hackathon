@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
 from todo import views
 
@@ -20,4 +20,5 @@ urlpatterns = [
     # path('user/', views.UserDetailView.as_view(), name='user_detail'),
     path('save-user-todo/', views.UserProvidedTodoSaveAPIView.as_view(), name='user_todo_save'),
     path('read-user-todo/', views.UserProvidedTodoReadAPIView.as_view(), name='user_todo_read'),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
 ]

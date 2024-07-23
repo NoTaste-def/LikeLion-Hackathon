@@ -11,3 +11,5 @@
 ###### 2024-07-18 : User Provided Todo List Database & API completion.
 
 ###### 2024-07-19 : Successfully Merged Database & API.
+
+###### 2024-07-23 : Server Completion.
