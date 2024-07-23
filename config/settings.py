@@ -27,7 +27,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # 커스텀 User 모델을 사용해야 하기 때문에, 이 설정이 필수
 AUTH_USER_MODEL = 'todo.User'
@@ -162,18 +162,10 @@ AUTHENTICATION_BACKENDS = [
 
 # CORS 
 
-
-DEBUG = False
-
-ALLOWED_HOSTS = ['*']
-
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True # 이게 True면 ORIGINS는 무시됨.
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    'https://web.postman.co',  # 리액트 애플리케이션이 호스팅되는 도메인
-    'http://localhost:3000',
-]
+CORS_ALLOWED_ORIGINS = []
 
 # 추가 설정 (예: 허용할 경로, 메서드 등)
 # CORS_ALLOW_CREDENTIALS = True
@@ -197,7 +189,7 @@ CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 
 
 # SESSION
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True # HTTPS를 사용할 경우 True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
 
