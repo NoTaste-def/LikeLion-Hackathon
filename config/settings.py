@@ -164,6 +164,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     'https://web.postman.co',  # 리액트 애플리케이션이 호스팅되는 도메인
+    'http://localhost:3000',
 ]
 
 # 추가 설정 (예: 허용할 경로, 메서드 등)
