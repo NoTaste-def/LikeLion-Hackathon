@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.views.static import serve
 from rest_framework.routers import DefaultRouter
 from todo import views
 
@@ -20,5 +21,7 @@ urlpatterns = [
     # path('user/', views.UserDetailView.as_view(), name='user_detail'),
     path('save-user-todo/', views.UserProvidedTodoSaveAPIView.as_view(), name='user_todo_save'),
     path('read-user-todo/', views.UserProvidedTodoReadAPIView.as_view(), name='user_todo_read'),
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
+    
+    # 이거 안 하면 배포후 미디어 파일 경로를 읽지 못 한다.
+    # re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
 ]
