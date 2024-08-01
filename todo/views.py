@@ -32,6 +32,7 @@ class CsrfTokenView(APIView):
         return Response({'csrfToken': token}, status=status.HTTP_200_OK)
 
 # TodoItem API ViewSet
+@method_decorator(csrf_exempt, name='dispatch')
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [SessionAuthentication]
     
@@ -51,6 +52,7 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)  # user 필드에 현재 사용자 설정
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -68,6 +70,7 @@ class CalendarReadAPIView(APIView):
         return Response({'item': item_name, 'dates': list(dates)})
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -86,6 +89,7 @@ class CalendarCountAPIView(APIView):
 
 
 # UserProvidedTodo API ViewSet
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -101,6 +105,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -128,6 +133,7 @@ class UserProvidedTodoSaveAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -172,6 +178,7 @@ class RegisterView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -212,7 +219,7 @@ class LoginView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
