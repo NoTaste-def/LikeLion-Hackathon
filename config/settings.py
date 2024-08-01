@@ -184,12 +184,16 @@ CORS_ALLOWED_ORIGINS = []
 # ]
 
 # CSRF 보호
-CSRF_COOKIE_SECURE = True  # HTTPS를 사용할 경우 True
+CSRF_COOKIE_SECURE = False  # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
 CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+]
+
 
 
 # SESSION
-SESSION_COOKIE_SECURE = True # HTTPS를 사용할 경우 True
+SESSION_COOKIE_SECURE = False # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
 SESSION_COOKIE_HTTPONLY = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
 
