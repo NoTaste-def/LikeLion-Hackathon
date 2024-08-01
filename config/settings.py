@@ -166,7 +166,7 @@ AUTHENTICATION_BACKENDS = [
 CORS_ALLOW_CREDENTIALS = True # CSRF 안쓰면 False
 # CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOWED_ORIGINS = [
-  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app/'
+  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
 ]
 
 CORS_ALLOW_METHODS = [
