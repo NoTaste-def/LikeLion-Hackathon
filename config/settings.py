@@ -146,8 +146,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # 세션 인증
-        'rest_framework.authentication.BasicAuthentication',   # 기본 인증
-        'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
+        # 'rest_framework.authentication.BasicAuthentication',   # 기본 인증
+        # 'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근
