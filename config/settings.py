@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -163,11 +163,27 @@ AUTHENTICATION_BACKENDS = [
 # CORS 
 
 CORS_ORIGIN_ALLOW_ALL = False # 이게 True면 ORIGINS는 무시됨.
-CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOW_CREDENTIALS = False # CSRF 안쓰면 False
 # CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOWED_ORIGINS = [
   'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
 ]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'accept',
+    'X-Requested-With',
+]
+
 
 # 추가 설정 (예: 허용할 경로, 메서드 등)
 # CORS_ALLOW_CREDENTIALS = True
