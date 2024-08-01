@@ -96,12 +96,14 @@ class TodoItem(models.Model):
         return self.get_name_display()
 
 class TodoItemDate(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 유저와 연결
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(TodoItem, related_name='dates', on_delete=models.CASCADE)
     date = models.DateField()
 
     class Meta:
-        unique_together = ('user', 'item', 'date')  # 유저, 아이템, 날짜 조합의 중복을 방지
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'item', 'date'], name='unique_user_item_date')
+        ]
 
 
 class UserProvidedTodo(models.Model):
