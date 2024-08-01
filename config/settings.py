@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import environ, os
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -178,10 +179,9 @@ CORS_ALLOW_METHODS = [
     'OPTIONS',
 ]
 
-CORS_ALLOW_HEADERS = [
-    'content-type',
-    'accept',
-    'X-Requested-With',
+# 기존의 헤더 설정에 x-csrftoken을 추가합니다.
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-csrftoken',
 ]
 
 
