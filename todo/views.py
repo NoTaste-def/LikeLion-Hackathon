@@ -33,7 +33,6 @@ class CsrfTokenView(APIView):
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
     
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
@@ -41,7 +40,6 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
     
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
@@ -53,7 +51,6 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
 
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -70,7 +67,6 @@ class CalendarReadAPIView(APIView):
 
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -88,7 +84,6 @@ class CalendarCountAPIView(APIView):
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
     
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
@@ -103,7 +98,6 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
 
     def post(self, request, format=None):
         data = request.data
@@ -126,7 +120,6 @@ class UserProvidedTodoSaveAPIView(APIView):
 
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
 
     def get(self, request, format=None):
         user = request.user
@@ -210,7 +203,6 @@ class LoginView(APIView):
 # @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]  # 인증된 사용자 접근 허용
 
     def post(self, request, *args, **kwargs):
         # 현재 로그인된 사용자 가져오기
