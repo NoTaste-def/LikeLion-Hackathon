@@ -164,8 +164,10 @@ AUTHENTICATION_BACKENDS = [
 
 CORS_ORIGIN_ALLOW_ALL = True # 이게 True면 ORIGINS는 무시됨.
 CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOWED_ORIGINS = []
+# CORS_ALLOW_ALL_ORIGINS = True  
+CORS_ALLOWED_ORIGINS = [
+  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app/'
+]
 
 # 추가 설정 (예: 허용할 경로, 메서드 등)
 # CORS_ALLOW_CREDENTIALS = True
