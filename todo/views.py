@@ -193,6 +193,9 @@ class LoginView(APIView):
                 # user의 UserProvidedTodo 중 생성 날짜가 마지막 로그인 날짜보다 이전인 항목 삭제
                 UserProvidedTodo.objects.filter(user=user, created_at__lt=user.login_at).delete()
 
+                # CSRF 토큰 생성
+                csrf_token = get_token(request)
+
                 return Response({
                     "message": "로그인 성공",
                     "user_email": user.user_email,
@@ -200,7 +203,8 @@ class LoginView(APIView):
                     "level": user.level,
                     "badges": user.badges,
                     "title": user.title,
-                    "login_at": user.login_at
+                    "login_at": user.login_at,
+                    "csrfToken": csrf_token
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "비밀번호 혹은 이메일이 일치하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
