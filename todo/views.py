@@ -95,7 +95,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-
+@csrf_exempt
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
 
