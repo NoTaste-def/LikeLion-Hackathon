@@ -40,6 +40,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
@@ -51,6 +52,7 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
 
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -67,6 +69,7 @@ class CalendarReadAPIView(APIView):
 
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -84,6 +87,7 @@ class CalendarCountAPIView(APIView):
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
@@ -98,7 +102,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
@@ -125,6 +129,7 @@ class UserProvidedTodoSaveAPIView(APIView):
 
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user = request.user
@@ -208,6 +213,7 @@ class LoginView(APIView):
 # @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         # 현재 로그인된 사용자 가져오기
