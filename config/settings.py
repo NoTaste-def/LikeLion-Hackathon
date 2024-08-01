@@ -162,12 +162,12 @@ AUTHENTICATION_BACKENDS = [
 
 # CORS 
 
-CORS_ORIGIN_ALLOW_ALL = False # 이게 True면 ORIGINS는 무시됨.
+CORS_ORIGIN_ALLOW_ALL = True # 이게 True면 ORIGINS는 무시됨.
 CORS_ALLOW_CREDENTIALS = False # CSRF 안쓰면 False
 # CORS_ALLOW_ALL_ORIGINS = True  
-CORS_ALLOWED_ORIGINS = [
-  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
-]
+# CORS_ALLOWED_ORIGINS = [
+#   'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
+# ]
 
 CORS_ALLOW_METHODS = [
     'GET',
@@ -213,5 +213,6 @@ CORS_ALLOW_HEADERS = [
 # SESSION
 SESSION_COOKIE_SECURE = True # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
 SESSION_COOKIE_HTTPONLY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # 브라우저 닫을때 세션 만료
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
 
