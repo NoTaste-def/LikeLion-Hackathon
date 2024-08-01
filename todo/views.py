@@ -98,25 +98,29 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
+    permission_classes = [AllowAny]
 
     def post(self, request, format=None):
-        data = request.data
-        user_todo_list = data.get('user_todo', [])
+        try:
+            data = request.data
+            user_todo_list = data.get('user_todo', [])
 
-        if not user_todo_list:
-            return Response({"error": "user_todo가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            if not user_todo_list:
+                return Response({"error": "user_todo가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = request.user
+            user = request.user
 
-        # 기존 UserProvidedTodo가 있다면 삭제하고 새로 생성
-        UserProvidedTodo.objects.filter(user=user).delete()
+            # 기존 UserProvidedTodo가 있다면 삭제하고 새로 생성
+            UserProvidedTodo.objects.filter(user=user).delete()
 
-        # 사용자에 대한 TODO 리스트 저장
-        user_todo_obj = UserProvidedTodo.objects.create(user=user, user_todo=user_todo_list)
+            # 사용자에 대한 TODO 리스트 저장
+            user_todo_obj = UserProvidedTodo.objects.create(user=user, user_todo=user_todo_list)
 
-        serializer = UserProvidedTodoSerializer(user_todo_obj)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer = UserProvidedTodoSerializer(user_todo_obj)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserProvidedTodoReadAPIView(APIView):
