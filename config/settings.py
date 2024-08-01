@@ -147,11 +147,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # 세션 인증
-        'rest_framework.authentication.BasicAuthentication',   # 기본 인증
-        'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
+        # 'rest_framework.authentication.BasicAuthentication',   # 기본 인증
+        # 'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근
+        'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근
     ),
 }
 
@@ -167,6 +168,9 @@ AUTHENTICATION_BACKENDS = [
 CORS_ALLOW_CREDENTIALS = True # CSRF 안쓰면 False
 # CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOWED_ORIGINS = [
+  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
+]
+CORS_ORIGIN_WHITELIST = [
   'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
 ]
 

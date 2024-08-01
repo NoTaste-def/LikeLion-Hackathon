@@ -1,7 +1,6 @@
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.decorators import method_decorator
 from django.middleware.csrf import get_token
-from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from django.contrib.auth import get_user_model, authenticate, login as auth_login
