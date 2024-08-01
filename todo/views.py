@@ -98,6 +98,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
+    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
 
     def post(self, request, format=None):
         data = request.data
