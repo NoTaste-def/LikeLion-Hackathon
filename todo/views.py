@@ -24,6 +24,7 @@ from rest_framework.authentication import SessionAuthentication
 User = get_user_model()
 
 # CSRF 토큰 발급 API
+@method_decorator(csrf_exempt, name='dispatch')
 class CsrfTokenView(APIView):
     permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
     def get(self, request, *args, **kwargs):
@@ -99,7 +100,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-@method_decorator(csrf_exempt, name='dispatch')
+
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
