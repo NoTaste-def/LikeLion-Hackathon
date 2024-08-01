@@ -144,6 +144,7 @@ class UserProvidedTodoReadAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
     
