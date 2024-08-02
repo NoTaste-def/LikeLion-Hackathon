@@ -104,7 +104,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
+    # authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
