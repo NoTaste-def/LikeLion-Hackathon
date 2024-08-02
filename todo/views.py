@@ -103,9 +103,8 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 # UserProvidedTodoSave API View
-@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
-    # authentication_classes = [SessionAuthentication]
+    authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
