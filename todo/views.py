@@ -36,7 +36,7 @@ class CsrfTokenView(APIView):
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
@@ -44,7 +44,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
 # TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
@@ -56,7 +56,7 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
 # CalendarRead API View
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -73,7 +73,7 @@ class CalendarReadAPIView(APIView):
 # CalendarCount API View
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -90,7 +90,7 @@ class CalendarCountAPIView(APIView):
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
@@ -104,20 +104,11 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
-    # authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
-            session_key = request.COOKIES.get('sessionid')
-            if not session_key:
-                return Response({"error": "세션 ID가 필요합니다."}, status=status.HTTP_403_FORBIDDEN)
-
-            try:
-                session = Session.objects.get(session_key=session_key)
-            except Session.DoesNotExist:
-                return Response({"error": "유효하지 않은 세션 ID입니다."}, status=status.HTTP_403_FORBIDDEN)
-
             data = request.data
             user_todo_list = data.get('user_todo', [])
 
@@ -143,17 +134,9 @@ class UserProvidedTodoSaveAPIView(APIView):
 # UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        session_key = request.COOKIES.get('sessionid')
-        if not session_key:
-            return Response({"error": "세션 ID가 필요합니다."}, status=status.HTTP_403_FORBIDDEN)
-
-        try:
-            session = Session.objects.get(session_key=session_key)
-        except Session.DoesNotExist:
-            return Response({"error": "유효하지 않은 세션 ID입니다."}, status=status.HTTP_403_FORBIDDEN)
 
         user = request.user
         if isinstance(user, AnonymousUser):
@@ -237,7 +220,7 @@ class LoginView(APIView):
 # Logout API View
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         # 현재 로그인된 사용자 가져오기
