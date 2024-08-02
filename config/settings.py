@@ -206,7 +206,6 @@ CORS_ALLOW_HEADERS = [
 # ]
 
 # CSRF 보호
-CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True  # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_NAME = 'csrftoken'
@@ -214,6 +213,12 @@ CSRF_HEADER_NAME = 'X-CSRFToken'
 CSRF_TRUSTED_ORIGINS = [
     'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app',
 ]
+
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_AGE = 1209600  # 2주 (초 단위)
+CSRF_COOKIE_AGE = 1209600
+
 
 # SESSION
 SESSION_COOKIE_SECURE = True # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
