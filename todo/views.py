@@ -41,7 +41,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
 
-
+# TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
@@ -53,31 +53,31 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
         user = self.request.user  # 현재 로그인된 사용자
         serializer.save(user=user)  # user 필드에 현재 사용자 설정
 
-
+# CalendarRead API View
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def get(self, request, item_name, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
-        
+
         try:
             item = TodoItem.objects.get(name=item_name)  # 이름으로 TodoItem 검색
         except TodoItem.DoesNotExist:
             return Response({'detail': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # 로그인한 사용자와 관련된 날짜만 조회
         dates = TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
         return Response({'item': item_name, 'dates': list(dates)})
 
-
+# CalendarCount API View
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
-        
+
         date_counts = (
             TodoItemDate.objects
             .filter(user=user)  # 로그인한 사용자와 관련된 데이터만 필터링
@@ -87,12 +87,11 @@ class CalendarCountAPIView(APIView):
         )
         return Response({'date_counts': list(date_counts)})
 
-
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
-    
+
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
 
@@ -103,8 +102,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-
-
+# UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
@@ -114,12 +112,12 @@ class UserProvidedTodoSaveAPIView(APIView):
             session_key = request.COOKIES.get('sessionid')
             if not session_key:
                 return Response({"error": "세션 ID가 필요합니다."}, status=status.HTTP_403_FORBIDDEN)
-            
+
             try:
                 session = Session.objects.get(session_key=session_key)
             except Session.DoesNotExist:
                 return Response({"error": "유효하지 않은 세션 ID입니다."}, status=status.HTTP_403_FORBIDDEN)
-            
+
             data = request.data
             user_todo_list = data.get('user_todo', [])
 
@@ -142,14 +140,24 @@ class UserProvidedTodoSaveAPIView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
+# UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
+        session_key = request.COOKIES.get('sessionid')
+        if not session_key:
+            return Response({"error": "세션 ID가 필요합니다."}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            session = Session.objects.get(session_key=session_key)
+        except Session.DoesNotExist:
+            return Response({"error": "유효하지 않은 세션 ID입니다."}, status=status.HTTP_403_FORBIDDEN)
+
         user = request.user
+        if isinstance(user, AnonymousUser):
+            return Response({"error": "인증되지 않은 사용자입니다."}, status=status.HTTP_403_FORBIDDEN)
 
         try:
             user_todo = UserProvidedTodo.objects.get(user=user)
@@ -159,10 +167,10 @@ class UserProvidedTodoReadAPIView(APIView):
         serializer = UserProvidedTodoSerializer(user_todo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+# Register API View
 class RegisterView(APIView):
     permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
-    
+
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
@@ -180,13 +188,13 @@ class RegisterView(APIView):
                 user_email=user_email,
                 nickname=nickname,
             )
-            user.set_password(password) # 비밀번호 해싱
+            user.set_password(password)  # 비밀번호 해싱
             user.save()
             return Response({"message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
+# Login API View
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -226,7 +234,7 @@ class LoginView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
+# Logout API View
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
@@ -237,5 +245,5 @@ class LogoutView(APIView):
 
         # 로그아웃 처리, 세션 종료
         django_logout(request)
-        
+
         return Response({"message": "로그아웃 성공"}, status=status.HTTP_200_OK)
