@@ -6,6 +6,9 @@ from django.db.models import Count
 from django.contrib.auth import get_user_model, authenticate, login as auth_login
 from django.contrib.auth import logout as django_logout
 
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import AnonymousUser
+
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -101,12 +104,22 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
         try:
+            session_key = request.COOKIES.get('sessionid')
+            if not session_key:
+                return Response({"error": "세션 ID가 필요합니다."}, status=status.HTTP_403_FORBIDDEN)
+            
+            try:
+                session = Session.objects.get(session_key=session_key)
+            except Session.DoesNotExist:
+                return Response({"error": "유효하지 않은 세션 ID입니다."}, status=status.HTTP_403_FORBIDDEN)
+            
             data = request.data
             user_todo_list = data.get('user_todo', [])
 
@@ -114,6 +127,8 @@ class UserProvidedTodoSaveAPIView(APIView):
                 return Response({"error": "user_todo가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             user = request.user
+            if isinstance(user, AnonymousUser):
+                return Response({"error": "인증되지 않은 사용자입니다."}, status=status.HTTP_403_FORBIDDEN)
 
             # 기존 UserProvidedTodo가 있다면 삭제하고 새로 생성
             UserProvidedTodo.objects.filter(user=user).delete()
@@ -126,6 +141,7 @@ class UserProvidedTodoSaveAPIView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class UserProvidedTodoReadAPIView(APIView):
