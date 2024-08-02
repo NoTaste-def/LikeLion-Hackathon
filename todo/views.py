@@ -28,23 +28,23 @@ User = get_user_model()
 # CSRF 토큰 발급 API
 @method_decorator(csrf_exempt, name='dispatch')
 class CsrfTokenView(APIView):
-    permission_classes = AllowAny  # 모든 사용자에게 접근 허용
+    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
     def get(self, request, *args, **kwargs):
         token = get_token(request)
         return Response({'csrfToken': token}, status=status.HTTP_200_OK)
 
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
     
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
 
 # TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
     
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
@@ -55,8 +55,8 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
 
 # CalendarRead API View
 class CalendarReadAPIView(APIView):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -72,8 +72,8 @@ class CalendarReadAPIView(APIView):
 
 # CalendarCount API View
 class CalendarCountAPIView(APIView):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
         user = request.user  # 현재 로그인된 사용자 가져오기
@@ -89,8 +89,8 @@ class CalendarCountAPIView(APIView):
 
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
@@ -104,8 +104,8 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
@@ -133,11 +133,10 @@ class UserProvidedTodoSaveAPIView(APIView):
 
 # UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-
         user = request.user
         if isinstance(user, AnonymousUser):
             return Response({"error": "인증되지 않은 사용자입니다."}, status=status.HTTP_403_FORBIDDEN)
@@ -152,7 +151,7 @@ class UserProvidedTodoReadAPIView(APIView):
 
 # Register API View
 class RegisterView(APIView):
-    permission_classes = AllowAny  # 모든 사용자에게 접근 허용
+    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
 
     def post(self, request, *args, **kwargs):
         try:
@@ -179,7 +178,7 @@ class RegisterView(APIView):
 
 # Login API View
 class LoginView(APIView):
-    permission_classes = AllowAny
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -219,8 +218,8 @@ class LoginView(APIView):
 
 # Logout API View
 class LogoutView(APIView):
-    authentication_classes = SessionAuthentication
-    permission_classes = IsAuthenticated
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         # 현재 로그인된 사용자 가져오기
