@@ -166,11 +166,8 @@ AUTHENTICATION_BACKENDS = [
 
 # CORS_ORIGIN_ALLOW_ALL = True # 이게 True면 ORIGINS는 무시됨.
 CORS_ALLOW_CREDENTIALS = True # CSRF 안쓰면 False
-# CORS_ALLOW_ALL_ORIGINS = True  
+# CORS_ALLOW_ALL_ORIGINS = False  
 CORS_ALLOWED_ORIGINS = [
-  'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
-]
-CORS_ORIGIN_WHITELIST = [
   'https://web-hackathon-front-lxmynpl6f586b2fd.sel5.cloudtype.app'
 ]
 
