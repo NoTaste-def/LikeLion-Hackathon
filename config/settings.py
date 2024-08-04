@@ -206,7 +206,7 @@ CORS_ALLOW_HEADERS = [
 # ]
 
 # CSRF 보호
-CSRF_COOKIE_SECURE = True  # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
+CSRF_COOKIE_SECURE = False  # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_HEADER_NAME = 'X-CSRFToken'
@@ -221,8 +221,8 @@ CSRF_COOKIE_AGE = 1209600
 
 
 # SESSION
-SESSION_COOKIE_SECURE = True # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = False # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
+SESSION_COOKIE_HTTPONLY = False
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # 브라우저 닫을때 세션 만료
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
 
