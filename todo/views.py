@@ -35,7 +35,6 @@ class CsrfTokenView(APIView):
         return Response({'csrfToken': token}, status=status.HTTP_200_OK)
 
 # TodoItem API ViewSet
-@method_decorator(csrf_exempt, name='dispatch')
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -44,7 +43,6 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TodoItemSerializer
 
 # TodoItemDate API ViewSet
-@method_decorator(csrf_exempt, name='dispatch')
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -57,7 +55,6 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)  # user 필드에 현재 사용자 설정
 
 # CalendarRead API View
-@method_decorator(csrf_exempt, name='dispatch')
 class CalendarReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -75,7 +72,6 @@ class CalendarReadAPIView(APIView):
         return Response({'item': item_name, 'dates': list(dates)})
 
 # CalendarCount API View
-@method_decorator(csrf_exempt, name='dispatch')
 class CalendarCountAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -93,7 +89,6 @@ class CalendarCountAPIView(APIView):
         return Response({'date_counts': list(date_counts)})
 
 # UserProvidedTodo API ViewSet
-@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -109,7 +104,6 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 # UserProvidedTodoSave API View
-@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -139,7 +133,6 @@ class UserProvidedTodoSaveAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # UserProvidedTodoRead API View
-@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoReadAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
@@ -159,7 +152,6 @@ class UserProvidedTodoReadAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Register API View
-@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
 
@@ -187,7 +179,6 @@ class RegisterView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # Login API View
-@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -228,7 +219,6 @@ class LoginView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # Logout API View
-@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
