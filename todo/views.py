@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from django.contrib.auth import get_user_model, authenticate, login as auth_login
 from django.contrib.auth import logout as django_logout
+from django.shortcuts import render
 
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import AnonymousUser
@@ -24,6 +25,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 
 User = get_user_model()
+
+def index(request):
+    return render(request, 'index.html')
 
 # CSRF 토큰 발급 API
 @method_decorator(csrf_exempt, name='dispatch')

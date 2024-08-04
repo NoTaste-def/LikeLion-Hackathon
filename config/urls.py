@@ -10,7 +10,8 @@ router.register(r'complete', views.TodoItemDateViewSet)
 router.register(r'user-todo', views.UserProvidedTodoViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
+    path('', views.index, name='index'),
     path('admin/', admin.site.urls),  # Django admin 페이지
     path('csrf-token/', views.CsrfTokenView.as_view(), name='csrf-token'),
     path('calendar/<str:item_name>/', views.CalendarReadAPIView.as_view(), name='calendar-read'),
