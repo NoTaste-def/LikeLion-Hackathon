@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token }}" />
-    <title>My Django App</title>
-    <script>
-      // CSRF 토큰을 자바스크립트에서 사용할 수 있도록 변수에 저장
-      window.csrfToken = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-    </script>
+    <title>Your App</title>
   </head>
   <body>
-    <h1>Welcome to My Django App</h1>
-    <!-- Your body content here -->
+    <!-- Your app's root element -->
+    <div id="app"></div>
+
+    <!-- Your scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
   </body>
 </html>
