@@ -84,7 +84,7 @@ class TodoItemDate(models.Model):
 
 class UserProvidedTodo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # 사용자와 연결
-    user_todo = models.JSONField()  # TODO 항목 내용, List 형태로 저장
+    user_todo = models.JSONField(default=list)  # TODO 항목 내용, List 형태로 저장
     created_at = models.DateField(auto_now_add=True)  # 생성 날짜
 
     def __str__(self):
