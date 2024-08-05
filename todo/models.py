@@ -28,7 +28,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     badges = models.CharField(max_length=64, null=True, blank=True)
     title = models.CharField(max_length=64, null=True, blank=True)
     login_at = models.DateField(auto_now=True)
-    is_login = models.BooleanField(default=True)  # 사용자 활성화 여부
+    is_login = models.BooleanField(default=False)  # 사용자 활성화 여부
 
     USERNAME_FIELD = 'user_email'
     REQUIRED_FIELDS = ['nickname']  # 필수 입력 필드로 설정

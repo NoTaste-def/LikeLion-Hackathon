@@ -38,7 +38,7 @@ class LoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, user_email=user_email, password=password)
             if user is not None:
-                if user.is_login:
+                if not user.is_login:
                     # 사용자 로그인 상태 업데이트
                     user.is_login = True
                     user.save()  # 데이터베이스에 저장
