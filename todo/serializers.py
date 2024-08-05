@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from .models import TodoItem, TodoItemDate, UserProvidedTodo, User
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id', 'user_email', 'nickname', 'password', 'level', 'badges', 'title', 'login_at', 'is_login']
+
 class TodoItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoItem
@@ -28,7 +33,6 @@ class TodoItemDateSerializer(serializers.ModelSerializer):
         item_id = validated_data.pop('item')
         item = TodoItem.objects.get(id=item_id)
         return TodoItemDate.objects.create(item=item, **validated_data)
-
 
 class UserProvidedTodoSerializer(serializers.ModelSerializer):
     class Meta:

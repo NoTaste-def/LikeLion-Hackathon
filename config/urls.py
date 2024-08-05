@@ -23,5 +23,5 @@ urlpatterns = [
     path('read-user-todo/', views.UserProvidedTodoReadAPIView.as_view(), name='user_todo_read'),
     
     # 이거 안 하면 배포후 미디어 파일 경로를 읽지 못 한다.
-    # re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
 ]

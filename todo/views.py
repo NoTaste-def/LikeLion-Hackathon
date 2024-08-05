@@ -2,29 +2,15 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.utils.decorators import method_decorator
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count
-from django.contrib.auth import get_user_model, authenticate, login as auth_login
-from django.contrib.auth import logout as django_logout
-from django.shortcuts import render
-
-from django.contrib.sessions.models import Session
-from django.contrib.auth.models import AnonymousUser
+from django.utils import timezone
 
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-
-from .models import TodoItem, TodoItemDate, UserProvidedTodo
-from .serializers import TodoItemSerializer, TodoItemDateSerializer, UserProvidedTodoSerializer
-
-# from datetime import date
-from django.utils import timezone
-
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
 
-User = get_user_model()
+from .models import TodoItem, TodoItemDate, UserProvidedTodo, User
+from .serializers import TodoItemSerializer, TodoItemDateSerializer, UserProvidedTodoSerializer
 
 # CSRF 토큰 발급 API
 @method_decorator(csrf_exempt, name='dispatch')
@@ -36,31 +22,32 @@ class CsrfTokenView(APIView):
 
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-    
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
 
 # TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-    
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
 
     def perform_create(self, serializer):
-        user = self.request.user  # 현재 로그인된 사용자
-        serializer.save(user=user)  # user 필드에 현재 사용자 설정
+        user_id = self.request.data.get('user_id')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer.save(user=user)
 
 # CalendarRead API View
 class CalendarReadAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
-        user = request.user  # 현재 로그인된 사용자 가져오기
+        user_id = request.headers.get('User-ID')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             item = TodoItem.objects.get(name=item_name)  # 이름으로 TodoItem 검색
@@ -73,11 +60,14 @@ class CalendarReadAPIView(APIView):
 
 # CalendarCount API View
 class CalendarCountAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        user = request.user  # 현재 로그인된 사용자 가져오기
+        user_id = request.headers.get('User-ID')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         date_counts = (
             TodoItemDate.objects
@@ -90,35 +80,42 @@ class CalendarCountAPIView(APIView):
 
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
 
     def get_queryset(self):
-        user = self.request.user
+        user_id = self.request.headers.get('User-ID')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return UserProvidedTodo.objects.none()
         return UserProvidedTodo.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user_id = self.request.data.get('user_id')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer.save(user=user)
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
             data = request.data
             user_todo_list = data.get('user_todo', [])
+            user_id = data.get('user_id')
 
-            if not user_todo_list:
-                return Response({"error": "user_todo가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            if not user_todo_list or not user_id:
+                return Response({"error": "user_todo와 user_id가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-            user = request.user
-            if isinstance(user, AnonymousUser):
-                return Response({"error": "인증되지 않은 사용자입니다."}, status=status.HTTP_403_FORBIDDEN)
+            try:
+                user = User.objects.get(user_id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
             # 기존 UserProvidedTodo가 있다면 삭제하고 새로 생성
             UserProvidedTodo.objects.filter(user=user).delete()
@@ -134,14 +131,14 @@ class UserProvidedTodoSaveAPIView(APIView):
 
 # UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-
-        user = request.user
-        if isinstance(user, AnonymousUser):
-            return Response({"error": "인증되지 않은 사용자입니다."}, status=status.HTTP_403_FORBIDDEN)
+        user_id = request.headers.get('User-ID')
+        try:
+            user = User.objects.get(user_id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             user_todo = UserProvidedTodo.objects.get(user=user)
@@ -171,8 +168,8 @@ class RegisterView(APIView):
             user = User(
                 user_email=user_email,
                 nickname=nickname,
+                password=make_password(password)  # 비밀번호 해싱
             )
-            user.set_password(password)  # 비밀번호 해싱
             user.save()
             return Response({"message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
         except Exception as e:
@@ -191,9 +188,10 @@ class LoginView(APIView):
             if not (user_email and password):
                 return Response({"error": "모든 값을 입력해 주세요."}, status=status.HTTP_400_BAD_REQUEST)
 
-            user = authenticate(request, user_email=user_email, password=password)
-            if user is not None:
-                auth_login(request, user)
+            user = User.objects.filter(user_email=user_email).first()
+            if user and check_password(password, user.password):
+                # 인증 성공
+                request.session['user_id'] = user.user_id
 
                 # 로그인 날짜 갱신 및 UserProvidedTodo 항목 삭제
                 user.login_at = timezone.now()
@@ -220,14 +218,10 @@ class LoginView(APIView):
 
 # Logout API View
 class LogoutView(APIView):
-    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        # 현재 로그인된 사용자 가져오기
-        # current_user = request.user
-
-        # 로그아웃 처리, 세션 종료
-        django_logout(request)
+        # 로그아웃 처리
+        request.session.pop('user_id', None)
 
         return Response({"message": "로그아웃 성공"}, status=status.HTTP_200_OK)

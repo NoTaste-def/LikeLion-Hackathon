@@ -150,8 +150,8 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-        # 'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근
+        # 'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',  # 인증된 사용자만 접근
     ),
 }
 
@@ -185,7 +185,6 @@ CORS_ALLOW_HEADERS = [
     'accept',
     'authorization',
     'content-type',
-    'x-csrftoken',
     'x-requested-with',
 ]
 
