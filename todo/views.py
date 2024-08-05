@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import TodoItem, TodoItemDate, UserProvidedTodo, User
 from .serializers import TodoItemSerializer, TodoItemDateSerializer, UserProvidedTodoSerializer
@@ -12,6 +12,8 @@ from .serializers import RegisterSerializer, LoginSerializer
 
 # 회원가입 API View
 class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    
     def post(self, request, format=None):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -25,6 +27,8 @@ class RegisterView(APIView):
 
 # 로그인 API View
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+    
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
