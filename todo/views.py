@@ -191,7 +191,6 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
             return get_object_or_404(User, user_id=user_id, is_login=True)
         return None
 
-# UserProvidedTodoSave API View
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     permission_classes = [AllowAny]
@@ -202,12 +201,23 @@ class UserProvidedTodoSaveAPIView(APIView):
         if not user:
             return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        data = request.data
-        serializer = UserProvidedTodoSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(user=user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Extract the list of new todo items from the request
+        new_todos = request.data.get('user_todo', [])
+        
+        # Retrieve or create a UserProvidedTodo instance for the user
+        user_todo, created = UserProvidedTodo.objects.get_or_create(user=user)
+        
+        # Merge existing todos with the new ones
+        existing_todos = user_todo.user_todo or []
+        updated_todos = list(set(existing_todos + new_todos))  # Remove duplicates by converting to set and back to list
+        
+        # Update the UserProvidedTodo instance
+        user_todo.user_todo = updated_todos
+        user_todo.save()
+        
+        # Serialize and return the updated data
+        serializer = UserProvidedTodoSerializer(user_todo)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_user_from_request(self):
         user_id = self.request.headers.get('X-User-Id')
