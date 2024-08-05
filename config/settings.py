@@ -145,7 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',  # 세션 인증
+        # 'rest_framework.authentication.SessionAuthentication',  # 세션 인증
         # 'rest_framework.authentication.BasicAuthentication',   # 기본 인증
         # 'rest_framework.authentication.TokenAuthentication',  # 토큰 인증
     ),
@@ -215,13 +215,13 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000'
 ]
 
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
+# CSRF_COOKIE_SAMESITE = 'Lax'
+# SESSION_COOKIE_SAMESITE = 'Lax'
 
 
-# SESSION
-SESSION_COOKIE_SECURE = False # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
-SESSION_COOKIE_HTTPONLY = False
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True # 브라우저 닫을때 세션 만료
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
+# # SESSION
+# SESSION_COOKIE_SECURE = False # HTTPS를 사용할 경우 True, 프론트도 배포되면 True로 변경
+# SESSION_COOKIE_HTTPONLY = False
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True # 브라우저 닫을때 세션 만료
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 기본 설정
 

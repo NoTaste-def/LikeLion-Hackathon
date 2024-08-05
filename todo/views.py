@@ -1,227 +1,218 @@
-from django.contrib.auth.hashers import make_password, check_password
-from django.utils.decorators import method_decorator
-from django.middleware.csrf import get_token
-from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-
-from rest_framework import status, viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from .models import TodoItem, TodoItemDate, UserProvidedTodo, User
 from .serializers import TodoItemSerializer, TodoItemDateSerializer, UserProvidedTodoSerializer
 
-# CSRF 토큰 발급 API
-@method_decorator(csrf_exempt, name='dispatch')
-class CsrfTokenView(APIView):
-    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
-    def get(self, request, *args, **kwargs):
-        token = get_token(request)
-        return Response({'csrfToken': token}, status=status.HTTP_200_OK)
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from .serializers import RegisterSerializer, LoginSerializer
+
+# 회원가입 API View
+class RegisterView(APIView):
+    def post(self, request, format=None):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user_email = serializer.validated_data['user_email']
+            password = serializer.validated_data['password']
+            nickname = serializer.validated_data['nickname']
+            user = User.objects.create_user(user_email=user_email, password=password, nickname=nickname)
+            return Response({'user_id': user.user_id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# 로그인 API View
+class LoginView(APIView):
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user_email = serializer.validated_data['user_email']
+            password = serializer.validated_data['password']
+            user = authenticate(request, user_email=user_email, password=password)
+            if user is not None:
+                if user.is_login:
+                    # 사용자 로그인 상태 업데이트
+                    auth_login(request, user)
+                    
+                    # 사용자 정보를 포함한 응답 반환
+                    user_data = {
+                        'user_id': user.user_id,
+                        'nickname': user.nickname,
+                        'level': user.level,
+                        'badges': user.badges,
+                        'title': user.title,
+                        'login_at': user.login_at
+                    }
+                    return Response(user_data, status=status.HTTP_200_OK)
+                return Response({'detail': 'User not active'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# 로그아웃 API View
+class LogoutView(APIView):
+    def post(self, request, format=None):
+        user_id = request.headers.get('X-User-Id')
+        if user_id:
+            try:
+                user = User.objects.get(user_id=user_id)
+                if user.is_login:
+                    # 사용자 로그아웃 상태 업데이트
+                    user.is_login = False
+                    user.save()
+                    auth_logout(request)
+                    return Response({'detail': 'Logged out'}, status=status.HTTP_200_OK)
+                return Response({'detail': 'User not active'}, status=status.HTTP_400_BAD_REQUEST)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'User ID header missing'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
 
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
+
 # TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
 
     def perform_create(self, serializer):
-        user_id = self.request.data.get('user_id')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = self.get_user_from_request()
         serializer.save(user=user)
+
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
 
 # CalendarRead API View
 class CalendarReadAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, item_name, format=None):
-        user_id = request.headers.get('User-ID')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        user = self.get_user_from_request()
+
+        if not user:
+            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
         try:
-            item = TodoItem.objects.get(name=item_name)  # 이름으로 TodoItem 검색
+            item = TodoItem.objects.get(name=item_name)
         except TodoItem.DoesNotExist:
             return Response({'detail': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 로그인한 사용자와 관련된 날짜만 조회
         dates = TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
         return Response({'item': item_name, 'dates': list(dates)})
+
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
 
 # CalendarCount API View
 class CalendarCountAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        user_id = request.headers.get('User-ID')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        user = self.get_user_from_request()
+
+        if not user:
+            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
         date_counts = (
             TodoItemDate.objects
-            .filter(user=user)  # 로그인한 사용자와 관련된 데이터만 필터링
+            .filter(user=user)
             .values('date')
-            .annotate(count=Count('date'))  # 날짜별 카운트 집계
+            .annotate(count=Count('date'))
             .order_by('date')
         )
         return Response({'date_counts': list(date_counts)})
 
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
+
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
 
     def get_queryset(self):
-        user_id = self.request.headers.get('User-ID')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return UserProvidedTodo.objects.none()
-        return UserProvidedTodo.objects.filter(user=user)
+        user = self.get_user_from_request()
+        if user:
+            return UserProvidedTodo.objects.filter(user=user)
+        return UserProvidedTodo.objects.none()
 
     def perform_create(self, serializer):
-        user_id = self.request.data.get('user_id')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer.save(user=user)
+        user = self.get_user_from_request()
+        if user:
+            serializer.save(user=user)
+        else:
+            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
-        try:
-            data = request.data
-            user_todo_list = data.get('user_todo', [])
-            user_id = data.get('user_id')
+        user = self.get_user_from_request()
 
-            if not user_todo_list or not user_id:
-                return Response({"error": "user_todo와 user_id가 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        if not user:
+            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-            try:
-                user = User.objects.get(user_id=user_id)
-            except User.DoesNotExist:
-                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            # 기존 UserProvidedTodo가 있다면 삭제하고 새로 생성
-            UserProvidedTodo.objects.filter(user=user).delete()
-
-            # 사용자에 대한 TODO 리스트 저장
-            user_todo_obj = UserProvidedTodo.objects.create(user=user, user_todo=user_todo_list)
-
-            serializer = UserProvidedTodoSerializer(user_todo_obj)
+        data = request.data
+        serializer = UserProvidedTodoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None
 
 # UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        user_id = request.headers.get('User-ID')
-        try:
-            user = User.objects.get(user_id=user_id)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = self.get_user_from_request()
+        if not user:
+            return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        todos = UserProvidedTodo.objects.filter(user=user)
+        serializer = UserProvidedTodoSerializer(todos, many=True)
+        return Response(serializer.data)
 
-        try:
-            user_todo = UserProvidedTodo.objects.get(user=user)
-        except UserProvidedTodo.DoesNotExist:
-            return Response({"error": "User's TODO not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = UserProvidedTodoSerializer(user_todo)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-# Register API View
-class RegisterView(APIView):
-    permission_classes = [AllowAny]  # 모든 사용자에게 접근 허용
-
-    def post(self, request, *args, **kwargs):
-        try:
-            data = request.data
-            user_email = data.get("user_email")
-            password = data.get("password")
-            nickname = data.get("nickname")
-
-            if not (user_email and password and nickname):
-                return Response({"error": "모든 값을 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
-
-            if User.objects.filter(user_email=user_email).exists():
-                return Response({"error": "이미 사용 중인 이메일입니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-            user = User(
-                user_email=user_email,
-                nickname=nickname,
-                password=make_password(password)  # 비밀번호 해싱
-            )
-            user.save()
-            return Response({"message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-# Login API View
-class LoginView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            data = request.data
-            user_email = data.get("user_email")
-            password = data.get("password")
-
-            if not (user_email and password):
-                return Response({"error": "모든 값을 입력해 주세요."}, status=status.HTTP_400_BAD_REQUEST)
-
-            user = User.objects.filter(user_email=user_email).first()
-            if user and check_password(password, user.password):
-                # 인증 성공
-                request.session['user_id'] = user.user_id
-
-                # 로그인 날짜 갱신 및 UserProvidedTodo 항목 삭제
-                user.login_at = timezone.now()
-                user.save()
-
-                # user의 UserProvidedTodo 중 생성 날짜가 마지막 로그인 날짜보다 이전인 항목 삭제
-                UserProvidedTodo.objects.filter(user=user, created_at__lt=user.login_at).delete()
-
-                return Response({
-                    "message": "로그인 성공",
-                    "user_email": user.user_email,
-                    "nickname": user.nickname,
-                    "level": user.level,
-                    "badges": user.badges,
-                    "title": user.title,
-                    "login_at": user.login_at
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "비밀번호 혹은 이메일이 일치하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            return Response({"error": "존재하지 않는 사용자입니다."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-# Logout API View
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        # 로그아웃 처리
-        request.session.pop('user_id', None)
-
-        return Response({"message": "로그아웃 성공"}, status=status.HTTP_200_OK)
+    def get_user_from_request(self):
+        user_id = self.request.headers.get('X-User-Id')
+        if user_id:
+            return get_object_or_404(User, user_id=user_id, is_login=True)
+        return None

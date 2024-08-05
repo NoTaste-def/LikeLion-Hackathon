@@ -38,3 +38,17 @@ class UserProvidedTodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProvidedTodo
         fields = ['user_todo', 'created_at']
+        
+class RegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_email', 'password', 'nickname']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+class LoginSerializer(serializers.Serializer):
+    user_email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
