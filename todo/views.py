@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +12,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from .serializers import RegisterSerializer, LoginSerializer
 
 # 회원가입 API View
+@csrf_exempt
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     
@@ -24,7 +26,7 @@ class RegisterView(APIView):
             return Response({'user_id': user.user_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@csrf_exempt
 class LoginView(APIView):
     permission_classes = [AllowAny]
     
@@ -57,6 +59,7 @@ class LoginView(APIView):
 
 
 # 로그아웃 API View
+@csrf_exempt
 class LogoutView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, format=None):
@@ -77,6 +80,7 @@ class LogoutView(APIView):
 
 
 # TodoItem API ViewSet
+@csrf_exempt
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     
@@ -90,6 +94,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
         return None
 
 # TodoItemDate API ViewSet
+@csrf_exempt
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
@@ -107,6 +112,7 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
         return None
 
 # CalendarRead API View
+@csrf_exempt
 class CalendarReadAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -131,6 +137,7 @@ class CalendarReadAPIView(APIView):
         return None
 
 # CalendarCount API View
+@csrf_exempt
 class CalendarCountAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -156,6 +163,7 @@ class CalendarCountAPIView(APIView):
         return None
 
 # UserProvidedTodo API ViewSet
+@csrf_exempt
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
@@ -182,6 +190,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         return None
 
 # UserProvidedTodoSave API View
+@csrf_exempt
 class UserProvidedTodoSaveAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -205,6 +214,7 @@ class UserProvidedTodoSaveAPIView(APIView):
         return None
 
 # UserProvidedTodoRead API View
+@csrf_exempt
 class UserProvidedTodoReadAPIView(APIView):
     permission_classes = [AllowAny]
 
