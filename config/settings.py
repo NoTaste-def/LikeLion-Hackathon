@@ -180,12 +180,13 @@ CORS_ALLOW_METHODS = [
     'OPTIONS',
 ]
 
-# 기존의 헤더 설정에 x-csrftoken을 추가합니다.
+# 헤더 설정
 CORS_ALLOW_HEADERS = [
     'accept',
     'authorization',
     'content-type',
     'x-requested-with',
+    'x-user-id'
 ]
 
 
