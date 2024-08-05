@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from .serializers import RegisterSerializer, LoginSerializer
 
 # 회원가입 API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     
@@ -27,7 +27,7 @@ class RegisterView(APIView):
             return Response({'user_id': user.user_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
     permission_classes = [AllowAny]
     
@@ -60,7 +60,7 @@ class LoginView(APIView):
 
 
 # 로그아웃 API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, format=None):
@@ -113,37 +113,33 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
         return None
 
 # CalendarRead API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class CalendarReadAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, item_name, format=None):
-        user = self.get_user_from_request()
-
-        if not user:
+        """
+        특정 item_name에 대한 일정을 읽어오는 GET 요청을 처리합니다.
+        """
+        # 사용자 인증 확인
+        user_id = request.headers.get('X-User-Id')
+        if user_id:
+            user = get_object_or_404(User, user_id=user_id, is_login=True)
+        else:
             return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        item = self.get_todo_item(item_name)
+        # TodoItem 객체 조회
+        item = TodoItem.objects.filter(name=item_name).first()
         if not item:
             return Response({'detail': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        dates = self.get_dates_for_item(item, user)
+        # TodoItemDate 객체 조회
+        dates = TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
+
         return Response({'item': item_name, 'dates': list(dates)})
 
-    def get_user_from_request(self):
-        user_id = self.request.headers.get('X-User-Id')
-        if user_id:
-            return get_object_or_404(User, user_id=user_id, is_login=True)
-        return None
-
-    def get_todo_item(self, item_name):
-        return TodoItem.objects.filter(name=item_name).first()
-
-    def get_dates_for_item(self, item, user):
-        return TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
-
 # CalendarCount API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class CalendarCountAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -196,7 +192,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
         return None
 
 # UserProvidedTodoSave API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     permission_classes = [AllowAny]
 
@@ -220,7 +216,7 @@ class UserProvidedTodoSaveAPIView(APIView):
         return None
 
 # UserProvidedTodoRead API View
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoReadAPIView(APIView):
     permission_classes = [AllowAny]
 

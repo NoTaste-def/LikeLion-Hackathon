@@ -13,9 +13,9 @@ urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),  # Django admin 페이지
     # path('csrf-token/', views.CsrfTokenView.as_view(), name='csrf-token'),
-    path('calendar/<str:item_name>/', views.CalendarReadAPIView.as_view(), name='calendar-read'),
-    path('calendar/cnt/all/', views.CalendarCountAPIView.as_view(), name='calendar-count'),
     path('register/', views.RegisterView.as_view(), name='register'),
+    path('calendar/cnt/all/', views.CalendarCountAPIView.as_view(), name='calendar-count'),
+    path('calendar/<str:item_name>/', views.CalendarReadAPIView.as_view(), name='calendar-read'),
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     # path('user/', views.UserDetailView.as_view(), name='user_detail'),
