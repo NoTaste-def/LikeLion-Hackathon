@@ -25,7 +25,6 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# 로그인 API View
 class LoginView(APIView):
     permission_classes = [AllowAny]
     
@@ -38,6 +37,8 @@ class LoginView(APIView):
             if user is not None:
                 if user.is_login:
                     # 사용자 로그인 상태 업데이트
+                    user.is_login = True
+                    user.save()  # 데이터베이스에 저장
                     auth_login(request, user)
                     
                     # 사용자 정보를 포함한 응답 반환
