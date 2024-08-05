@@ -57,6 +57,7 @@ class LoginView(APIView):
 
 # 로그아웃 API View
 class LogoutView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, format=None):
         user_id = request.headers.get('X-User-Id')
         if user_id:
@@ -76,7 +77,7 @@ class LogoutView(APIView):
 
 # TodoItem API ViewSet
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     queryset = TodoItem.objects.all()
     serializer_class = TodoItemSerializer
@@ -89,7 +90,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
 
 # TodoItemDate API ViewSet
 class TodoItemDateViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     queryset = TodoItemDate.objects.all()
     serializer_class = TodoItemDateSerializer
@@ -106,7 +107,7 @@ class TodoItemDateViewSet(viewsets.ModelViewSet):
 
 # CalendarRead API View
 class CalendarReadAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, item_name, format=None):
         user = self.get_user_from_request()
@@ -130,7 +131,7 @@ class CalendarReadAPIView(APIView):
 
 # CalendarCount API View
 class CalendarCountAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, format=None):
         user = self.get_user_from_request()
@@ -155,7 +156,7 @@ class CalendarCountAPIView(APIView):
 
 # UserProvidedTodo API ViewSet
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     queryset = UserProvidedTodo.objects.all()
     serializer_class = UserProvidedTodoSerializer
@@ -181,7 +182,7 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
 
 # UserProvidedTodoSave API View
 class UserProvidedTodoSaveAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, format=None):
         user = self.get_user_from_request()
@@ -204,7 +205,7 @@ class UserProvidedTodoSaveAPIView(APIView):
 
 # UserProvidedTodoRead API View
 class UserProvidedTodoReadAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, format=None):
         user = self.get_user_from_request()
