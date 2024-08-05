@@ -123,12 +123,11 @@ class CalendarReadAPIView(APIView):
         if not user:
             return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        try:
-            item = TodoItem.objects.get(name=item_name)
-        except TodoItem.DoesNotExist:
+        item = self.get_todo_item(item_name)
+        if not item:
             return Response({'detail': 'Item not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        dates = TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
+        dates = self.get_dates_for_item(item, user)
         return Response({'item': item_name, 'dates': list(dates)})
 
     def get_user_from_request(self):
@@ -136,6 +135,12 @@ class CalendarReadAPIView(APIView):
         if user_id:
             return get_object_or_404(User, user_id=user_id, is_login=True)
         return None
+
+    def get_todo_item(self, item_name):
+        return TodoItem.objects.filter(name=item_name).first()
+
+    def get_dates_for_item(self, item, user):
+        return TodoItemDate.objects.filter(item=item, user=user).values_list('date', flat=True)
 
 # CalendarCount API View
 @csrf_exempt
