@@ -80,7 +80,7 @@ class LogoutView(APIView):
 
 
 # TodoItem API ViewSet
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     
@@ -94,7 +94,7 @@ class TodoItemViewSet(viewsets.ReadOnlyModelViewSet):
         return None
 
 # TodoItemDate API ViewSet
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class TodoItemDateViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
@@ -163,7 +163,7 @@ class CalendarCountAPIView(APIView):
         return None
 
 # UserProvidedTodo API ViewSet
-@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
