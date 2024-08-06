@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -246,3 +247,45 @@ class UserProvidedTodoReadAPIView(APIView):
         if user_id:
             return get_object_or_404(User, user_id=user_id, is_login=True)
         return None
+      
+@method_decorator(csrf_exempt, name='dispatch')
+class UserTodoListByMonthAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        user_id = request.headers.get('X-User-Id')
+        if not user_id:
+            return Response({'detail': 'User ID header missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 사용자 인증 및 조회
+        user = get_object_or_404(User, user_id=user_id, is_login=True)
+
+        # 월 파라미터 가져오기
+        month = request.query_params.get('month')
+        year = request.query_params.get('year')
+
+        if not month or not year:
+            return Response({'detail': 'Year and month are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # 월과 연도를 정수로 변환
+            month = int(month)
+            year = int(year)
+            
+            # 월과 연도 범위의 시작일과 종료일 계산
+            start_date = datetime(year, month, 1)
+            if month == 12:
+                end_date = datetime(year + 1, 1, 1)
+            else:
+                end_date = datetime(year, month + 1, 1)
+        except ValueError:
+            return Response({'detail': 'Invalid month or year'}, status=status.HTTP_400_BAD_REQUEST)
+        except TypeError:
+            return Response({'detail': 'Month and year must be integers'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 날짜 범위 조회
+        todos = UserProvidedTodo.objects.filter(user=user, date__range=[start_date, end_date])
+
+        # 시리얼라이저를 사용하여 응답 데이터 생성
+        serializer = UserProvidedTodoSerializer(todos, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
