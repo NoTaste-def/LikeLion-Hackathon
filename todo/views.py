@@ -191,31 +191,29 @@ class UserProvidedTodoViewSet(viewsets.ModelViewSet):
             return get_object_or_404(User, user_id=user_id, is_login=True)
         return None
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoSaveAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, format=None):
         user = self.get_user_from_request()
-
         if not user:
             return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Extract the list of new todo items from the request
         new_todos = request.data.get('user_todo', [])
-        
-        # Retrieve or create a UserProvidedTodo instance for the user
-        user_todo, created = UserProvidedTodo.objects.get_or_create(user=user)
-        
-        # Merge existing todos with the new ones
+        current_date = request.data.get('date')
+
+        if not current_date:
+            return Response({'detail': 'Date not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_todo, created = UserProvidedTodo.objects.get_or_create(user=user, date=current_date)
+
         existing_todos = user_todo.user_todo or []
-        updated_todos = list(set(existing_todos + new_todos))  # Remove duplicates by converting to set and back to list
-        
-        # Update the UserProvidedTodo instance
+        updated_todos = list(set(existing_todos + new_todos))
         user_todo.user_todo = updated_todos
         user_todo.save()
-        
-        # Serialize and return the updated data
+
         serializer = UserProvidedTodoSerializer(user_todo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -225,17 +223,21 @@ class UserProvidedTodoSaveAPIView(APIView):
             return get_object_or_404(User, user_id=user_id, is_login=True)
         return None
 
-# UserProvidedTodoRead API View
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProvidedTodoReadAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
         user = self.get_user_from_request()
+        date = request.query_params.get('date')
+
         if not user:
             return Response({'detail': 'User not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        todos = UserProvidedTodo.objects.filter(user=user)
+
+        if not date:
+            return Response({'detail': 'Date not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        todos = UserProvidedTodo.objects.filter(user=user, date=date)
         serializer = UserProvidedTodoSerializer(todos, many=True)
         return Response(serializer.data)
 

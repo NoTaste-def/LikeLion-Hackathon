@@ -83,9 +83,14 @@ class TodoItemDate(models.Model):
 
 
 class UserProvidedTodo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 사용자와 연결
-    user_todo = models.JSONField(default=list)  # TODO 항목 내용, List 형태로 저장
-    created_at = models.DateField(auto_now_add=True)  # 생성 날짜
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_todo = models.JSONField(default=list)
+    date = models.DateField()  # 새로운 날짜 필드
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'date'], name='unique_user_date')
+        ]
 
     def __str__(self):
-        return str(self.user_todo)  # 변경: 리스트를 문자열로 변환
+        return str(self.user_todo)

@@ -37,8 +37,8 @@ class TodoItemDateSerializer(serializers.ModelSerializer):
 class UserProvidedTodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProvidedTodo
-        fields = ['user_todo', 'created_at']
-        
+        fields = ['user_todo', 'date']
+
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -46,6 +46,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        # Create a new user and set the password
         user = User.objects.create_user(**validated_data)
         return user
 
