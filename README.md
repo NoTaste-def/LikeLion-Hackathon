@@ -13,3 +13,23 @@
 ###### 2024-07-19 : Successfully Merged Database & API.
 
 ###### 2024-07-23 : Server Completion.
+
+###### 2024-08-02 : Changed login logic. From session method to self-implemented login logic.
+
+
+
+### 問題
+CORSエラーによる特定URLへの接近が不可能になった。
+<br/>
+settings.pyとviews.pyの権限に関する設定およびコードを追加しても問題が解決出来なかった。
+
+### 解決
+データベースの構造を変え、ログインを行う仕組みを変えることにした。
+<br/>
+
+### 考察
+推論に過ぎないが、おそらくDRFが提供するセッション、CSRF検証に関する問題だったと思う。
+<br/>
+この問題を解決するためにはDRF自体の内部ロジックに詳しく調べる必要をかんじた。
+<br/>
+これから時間をかけて調べる予定だ。
