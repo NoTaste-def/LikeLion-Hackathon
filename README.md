@@ -14,7 +14,7 @@
 
 ###### 2024-07-23 : Server Completion.
 
-###### 2024-08-02 : Changed login logic. From session method to self-implemented login logic.
+###### 2024-08-05 : Changed login logic. From session method to self-implemented login logic.
 
 
 
